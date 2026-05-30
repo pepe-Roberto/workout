@@ -484,7 +484,7 @@ Question | Answer"></textarea>
         line = line.trim();
         if (!line) continue;
 
-        // Deck header: DECK 1 — Name or DECK 1 - Name or 3: or 4:
+        // Deck header: DECK 1 — Name or DECK 1 - Name or 3: Name (shorthand)
         const deckMatch = line.match(/^DECK\s+(\d+)\s*[—\-–]\s*(.+)/i);
         const shortDeck = line.match(/^(\d+)\s*:\s*(.*)/);
         if (deckMatch) {
