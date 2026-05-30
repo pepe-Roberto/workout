@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warayo Flashcards</title>
+  <title>Warayo Flashcards — ML Design</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -340,12 +340,12 @@
 
   <main class="container" id="app">
     <div class="hero">
-      <h1>Flashcard Study</h1>
-      <p>Paste your flashcards below — flip, review, repeat.</p>
+      <h1>Warayo Flashcards</h1>
+      <p>100 cards · 10 ML Design decks. Tap to flip, swipe to navigate.</p>
     </div>
 
     <!-- Input Section -->
-    <div id="input-section">
+    <div id="input-section" style="display:none;">
       <div class="flashcard-input-label">Paste Flashcards</div>
       <div class="flashcard-format-hint">
         All 10 ML Design decks are pre-loaded below. Click <strong>📚 Study</strong> to start.
@@ -368,7 +368,6 @@
         </div>
         <div class="study-controls">
           <button onclick="shuffleCards()">🔀 Shuffle</button>
-          <button onclick="backToInput()">✏️ Edit</button>
         </div>
       </div>
 
@@ -393,10 +392,6 @@
         <button class="nav-btn" id="prev-btn" onclick="prevCard()">←</button>
         <span class="nav-dots" id="nav-dots">• • •</span>
         <button class="nav-btn" id="next-btn" onclick="nextCard()">→</button>
-      </div>
-
-      <div class="back-link">
-        <button onclick="backToInput()">← Back to paste new cards</button>
       </div>
     </div>
 
@@ -964,11 +959,15 @@ A: False merges that incorrectly combine different entities.`;
           }
         } catch(e) {}
       }
-      // No saved data — load defaults
-      const textarea = document.getElementById('flashcard-input');
-      if (textarea) {
-        textarea.value = DEFAULT_FLASHCARDS;
-        loadCards();
+      // No saved data — load defaults directly
+      cards = parseFlashcards(DEFAULT_FLASHCARDS);
+      if (cards.length > 0) {
+        decks = buildDeckList(cards);
+        activeDeck = null;
+        localStorage.setItem('fc_cards', JSON.stringify(cards));
+        currentIndex = 0;
+        showStudyMode();
+        showCard(0);
       }
     })();
   </script>
