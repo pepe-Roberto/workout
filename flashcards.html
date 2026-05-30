@@ -348,20 +348,9 @@
     <div id="input-section">
       <div class="flashcard-input-label">Paste Flashcards</div>
       <div class="flashcard-format-hint">
-        Supports <strong>deck format</strong> with <code>DECK N — Name</code> headers and <code>Q:</code>/<code>A:</code> lines.<br>
-        Also works with pipe format: <code>Question | Answer</code> (one per line).
+        All 10 ML Design decks are pre-loaded below. Click <strong>📚 Study</strong> to start.
       </div>
-      <textarea id="flashcard-input" placeholder="Paste your flashcards here...
-
-Deck format (recommended):
-DECK 1 — Universal ML Design Framework
-Q: What is the universal ML system design structure?
-A: Product goal → prediction task → data → model → serving → evaluation → monitoring.
-Q: What is a prediction target?
-A: The exact thing the model predicts.
-
-Or pipe format:
-Question | Answer"></textarea>
+      <textarea id="flashcard-input"></textarea>
       <div class="card-count" id="card-count"></div>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="loadCards()">📚 Study</button>
@@ -737,7 +726,228 @@ Question | Answer"></textarea>
       }
     });
 
-    // ── Restore from localStorage ──
+    // ── Default Flashcard Content ──
+    const DEFAULT_FLASHCARDS = `DECK 1 — Universal ML Design Framework
+Q: What is the universal ML system design structure?
+A: Product goal → prediction task → data → model → serving → evaluation → monitoring.
+Q: What should you clarify first in an ML design interview?
+A: The business/product goal, users, prediction action, constraints, latency, scale, and available data.
+Q: What are the three types of metrics to define?
+A: Business metrics, ML metrics, and guardrail metrics.
+Q: What is a prediction target?
+A: The exact thing the model predicts, such as P(click), P(churn), demand next week, or relevance score.
+Q: Why start with a baseline?
+A: It gives a simple benchmark, proves value quickly, and helps justify more complex models.
+Q: What should every ML design include after the model?
+A: Serving strategy, evaluation, A/B testing, monitoring, retraining, and fallback behavior.
+Q: What is training-serving skew?
+A: When features used during training differ from features available or computed during serving.
+Q: What is data leakage?
+A: When training uses information that would not be available at prediction time.
+Q: What is delayed feedback?
+A: When labels arrive much later than predictions, such as fraud chargebacks or churn.
+Q: What is a feedback loop?
+A: When model decisions influence the future data the model learns from.
+
+DECK 2 — Ranking Systems
+Q: What is the standard architecture for ranking systems?
+A: Candidate generation → ranking → re-ranking → serving → monitoring.
+Q: Why use candidate generation?
+A: To reduce millions of possible items to a smaller set that can be ranked efficiently.
+Q: What models are common for candidate generation?
+A: Popularity, collaborative filtering, two-tower models, embeddings, approximate nearest neighbor search.
+Q: What models are common for ranking?
+A: Logistic regression, XGBoost, LightGBM, wide-and-deep models, neural rankers, transformers.
+Q: What is re-ranking?
+A: A final adjustment layer for diversity, freshness, fairness, business rules, or safety.
+Q: What are common ranking metrics?
+A: Precision@k, recall@k, NDCG@k, MAP, MRR, CTR, conversion rate.
+Q: What is NDCG useful for?
+A: Measuring whether highly relevant items appear near the top of a ranked list.
+Q: What is position bias?
+A: Items shown higher receive more clicks simply because of their position.
+Q: What is cold start in ranking?
+A: Difficulty recommending/ranking new users or new items with little interaction history.
+Q: What are ranking guardrails?
+A: Diversity, freshness, fairness, latency, spam, harmful content, user trust.
+
+DECK 3 — Classification Systems
+Q: What is the standard architecture for classification systems?
+A: Data/events → feature generation → classifier → decision threshold → action/review → monitoring.
+Q: What are common classification models?
+A: Logistic regression, random forest, XGBoost, LightGBM, neural networks, transformers for text/image.
+Q: What metrics are common for classification?
+A: Precision, recall, F1, AUC-ROC, AUC-PR, calibration, confusion matrix.
+Q: When is precision more important?
+A: When false positives are costly, such as blocking legitimate users.
+Q: When is recall more important?
+A: When missing positives is costly, such as missing fraud or harmful content.
+Q: Why is AUC-PR useful?
+A: It works better than AUC-ROC for imbalanced datasets.
+Q: What is threshold tuning?
+A: Choosing the probability cutoff that converts model scores into actions.
+Q: What actions can a classifier trigger?
+A: Approve, block, rank lower, send to review, ask for verification, notify user, or ignore.
+Q: Why use human review?
+A: For uncertain, high-risk, or policy-sensitive cases where mistakes are expensive.
+Q: What is class imbalance?
+A: When one class is much rarer than the other, such as fraud being rare.
+
+DECK 4 — Forecasting & Regression Systems
+Q: What is the standard architecture for forecasting?
+A: Historical data → feature engineering → model → forecast generation → business action → monitoring.
+Q: What are common forecasting features?
+A: Lags, rolling averages, seasonality, holidays, promotions, prices, external events.
+Q: What are common forecasting models?
+A: Seasonal naive, ARIMA-style models, Prophet-style models, XGBoost, LightGBM, DeepAR, TFT.
+Q: What are common regression metrics?
+A: MAE, RMSE, MAPE, sMAPE, WAPE, bias.
+Q: Why is backtesting important?
+A: It simulates how the model would perform on future periods using past data.
+Q: What is forecast bias?
+A: A systematic tendency to overpredict or underpredict.
+Q: What is WAPE useful for?
+A: Measuring error relative to total actual demand or volume.
+Q: What is dynamic pricing predicting?
+A: Demand or conversion probability at different price points.
+Q: What is the main risk in dynamic pricing?
+A: Historical prices are confounded because prices were not randomly assigned.
+Q: What are forecasting guardrails?
+A: Stockouts, overstock, revenue loss, margin, customer trust, operational constraints.
+
+DECK 5 — Retrieval & Similarity Systems
+Q: What is the standard retrieval architecture?
+A: Ingestion → preprocessing → embedding/indexing → retrieval → reranking → serving → monitoring.
+Q: What is lexical retrieval?
+A: Keyword-based search, usually using methods like BM25.
+Q: What is semantic retrieval?
+A: Retrieval using embeddings to capture meaning rather than exact keyword matches.
+Q: What is hybrid search?
+A: Combining lexical search and vector search.
+Q: Why use reranking?
+A: To improve final result quality after retrieving a broad candidate set.
+Q: What is approximate nearest neighbor search?
+A: A fast way to find similar vectors at scale.
+Q: What metrics are common for retrieval?
+A: Recall@k, precision@k, MRR, NDCG, hit rate.
+Q: What is duplicate detection architecture?
+A: Blocking → pairwise similarity model → clustering/merge decision → human review.
+Q: Why is blocking needed in entity resolution?
+A: Comparing every pair is too expensive.
+Q: What is the main risk in duplicate detection?
+A: False merges can be worse than missed duplicates.
+
+DECK 6 — Decision & Optimization Systems
+Q: What is the goal of next-best-action?
+A: Choose the best action, offer, message, or intervention for each user.
+Q: Why is response prediction not enough for next-best-action?
+A: It predicts who will respond, not who will respond because of the action.
+Q: What is uplift modeling?
+A: Estimating the incremental effect of an intervention.
+Q: What data is best for uplift modeling?
+A: Randomized treatment/control experiment data.
+Q: What are uplift metrics?
+A: Uplift@k, Qini curve, incremental conversion, treatment ROI.
+Q: What is a multi-armed bandit?
+A: A method that balances exploration and exploitation across multiple choices.
+Q: What are common bandit algorithms?
+A: Epsilon-greedy, UCB, Thompson sampling, contextual bandits.
+Q: What is regret in bandits?
+A: Lost reward from not always choosing the best option.
+Q: What is marketplace matching?
+A: Matching two sides of a market, such as buyers/sellers or riders/drivers.
+Q: What are marketplace matching metrics?
+A: Match rate, completion rate, time to match, utilization, revenue, user satisfaction.
+
+DECK 7 — LLM / RAG Systems
+Q: What is the standard RAG architecture?
+A: Document ingestion → chunking → embeddings → vector database → retrieval → reranking → prompt → LLM answer → evaluation.
+Q: Why use RAG?
+A: To ground LLM answers in external or internal knowledge.
+Q: What is chunking?
+A: Splitting documents into smaller passages for retrieval.
+Q: What is a vector database used for?
+A: Storing and retrieving embeddings efficiently.
+Q: What is a reranker in RAG?
+A: A model that reorders retrieved chunks before sending them to the LLM.
+Q: What are common RAG metrics?
+A: Retrieval recall, groundedness, faithfulness, answer correctness, latency, cost.
+Q: What is hallucination?
+A: When an LLM generates unsupported or false information.
+Q: How do you reduce hallucinations in RAG?
+A: Improve retrieval, use citations, constrain prompts, add reranking, and evaluate groundedness.
+Q: What is prompt injection?
+A: Malicious or irrelevant text that tries to override system instructions.
+Q: What are RAG guardrails?
+A: Privacy, access control, citation quality, hallucination prevention, freshness, prompt injection defense.
+
+DECK 8 — ML System Reliability
+Q: What should be monitored after deployment?
+A: Data quality, feature drift, prediction drift, model performance, latency, errors, cost, business metrics.
+Q: What is data drift?
+A: Input data distribution changes over time.
+Q: What is concept drift?
+A: The relationship between features and labels changes over time.
+Q: What is prediction drift?
+A: The distribution of model outputs changes over time.
+Q: What is model degradation?
+A: Model performance gets worse after deployment.
+Q: What are common fallback strategies?
+A: Rules, popularity, cached results, previous model version, safe default, manual review.
+Q: What is a canary rollout?
+A: Releasing a model to a small percentage of users before full deployment.
+Q: What is shadow deployment?
+A: Running a new model in parallel without affecting users.
+Q: What is online/offline metric mismatch?
+A: When offline metrics improve but real user/business metrics do not.
+Q: What is retraining strategy?
+A: The plan for updating the model periodically or when drift/performance triggers fire.
+
+DECK 9 — Interview Phrases
+Q: How should I start an ML design answer?
+A: "I'll first clarify the product goal and constraints, then define the prediction task, data, model, serving, evaluation, and monitoring."
+Q: What should I say before choosing a model?
+A: "Before choosing the model, I want to define the label and success metrics."
+Q: What should I say about baselines?
+A: "I would start with a simple baseline to establish value and create a benchmark."
+Q: What should I say about online validation?
+A: "After offline evaluation, I would validate with an A/B test and guardrail metrics."
+Q: What should I say about ranking?
+A: "I would separate the system into candidate generation, ranking, and re-ranking."
+Q: What should I say about fraud/moderation?
+A: "I would use a risk score with thresholds for allow, block, step-up verification, or human review."
+Q: What should I say about churn?
+A: "The score is only useful if connected to an intervention, so I would measure retention uplift."
+Q: What should I say about pricing?
+A: "I would be careful with confounding because historical prices were not randomly assigned."
+Q: What should I say about credit risk?
+A: "Calibration and explainability matter as much as raw predictive performance."
+Q: What should I say about RAG?
+A: "The main challenge is not only generation quality, but retrieval quality, grounding, freshness, and safety."
+
+DECK 10 — Failure Modes
+Q: What is a common failure in recommendation systems?
+A: Feedback loops, filter bubbles, popularity bias, cold start, low diversity.
+Q: What is a common failure in search systems?
+A: Poor retrieval recall, position bias, stale index, bad query understanding.
+Q: What is a common failure in fraud systems?
+A: Adversarial adaptation, false positives, delayed labels, class imbalance.
+Q: What is a common failure in forecasting systems?
+A: Seasonality errors, data leakage, unexpected events, forecast bias.
+Q: What is a common failure in churn systems?
+A: Predicting likely churners without proving the intervention actually helps.
+Q: What is a common failure in ads systems?
+A: Optimizing clicks at the cost of user experience or advertiser ROI.
+Q: What is a common failure in RAG systems?
+A: Bad retrieval causing confident but unsupported answers.
+Q: What is a common failure in moderation systems?
+A: False positives, inconsistent labels, adversarial evasion, multilingual weakness.
+Q: What is a common failure in bandit systems?
+A: Bad reward design or insufficient exploration.
+Q: What is a common failure in entity resolution?
+A: False merges that incorrectly combine different entities.`;
+
+    // ── Restore from localStorage or load defaults ──
     (function init() {
       const saved = localStorage.getItem('fc_cards');
       if (saved) {
@@ -750,8 +960,15 @@ Question | Answer"></textarea>
             currentIndex = isNaN(idx) ? 0 : Math.min(idx, cards.length - 1);
             showStudyMode();
             showCardAbsolute(currentIndex);
+            return;
           }
         } catch(e) {}
+      }
+      // No saved data — load defaults
+      const textarea = document.getElementById('flashcard-input');
+      if (textarea) {
+        textarea.value = DEFAULT_FLASHCARDS;
+        loadCards();
       }
     })();
   </script>
