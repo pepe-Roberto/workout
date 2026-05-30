@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warayo Gym — 3-Day Split</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #08090a;
+      --bg-panel: #0f1011;
+      --bg-surface: #191a1b;
+      --bg-secondary: #28282c;
+      --text-primary: #f7f8f8;
+      --text-secondary: #d0d6e0;
+      --text-tertiary: #8a8f98;
+      --text-quaternary: #62666d;
+      --accent: #7170ff;
+      --accent-hover: #828fff;
+      --accent-bg: #5e6ad2;
+      --border: rgba(255,255,255,0.08);
+      --border-subtle: rgba(255,255,255,0.05);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      font-feature-settings: 'cv01', 'ss03';
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--text-quaternary); border-radius: 3px; }
+
+    /* Header */
+    header {
+      background: rgba(15,16,17,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 510;
+      letter-spacing: -0.288px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--accent-bg);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    .stat-value {
+      color: var(--text-secondary);
+      font-weight: 510;
+    }
+
+    .stat-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text-quaternary);
+    }
+
+    /* Main container */
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      font-weight: 510;
+      line-height: 1.00;
+      letter-spacing: -0.88px;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--text-tertiary);
+      max-width: 560px;
+    }
+
+    /* Goal Toggle */
+    .goal-section {
+      margin-bottom: 36px;
+    }
+
+    .goal-label {
+      font-size: 13px;
+      font-weight: 510;
+      color: var(--text-quaternary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 8px;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      width: fit-content;
+    }
+
+    .toggle-btn {
+      padding: 10px 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-feature-settings: 'cv01', 'ss03';
+      font-size: 14px;
+      font-weight: 510;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .toggle-btn:hover {
+      color: var(--text-secondary);
+    }
+
+    .toggle-btn.active {
+      background: var(--accent-bg);
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Day cards */
+    .day-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .day-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .day-card:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .day-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .day-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .day-number {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .day-title {
+      font-size: 17px;
+      font-weight: 590;
+      letter-spacing: -0.24px;
+      color: var(--text-primary);
+    }
+
+    .day-muscle {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-quaternary);
+      background: rgba(255,255,255,0.04);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .day-type-badge {
+      font-size: 12px;
+      font-weight: 510;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      color: var(--text-quaternary);
+    }
+
+    .day-type-badge.definition {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .day-type-badge.volume {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Exercises table */
+    .exercise-list {
+      padding: 16px 24px 20px;
+    }
+
+    .exercise-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 100px 80px;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .exercise-row:last-child {
+      border-bottom: none;
+    }
+
+    .exercise-name {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: -0.165px;
+    }
+
+    .exercise-sets {
+      font-size: 14px;
+      font-weight: 510;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .exercise-reps {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-tertiary);
+      text-align: center;
+    }
+
+    .exercise-rest {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-quaternary);
+      text-align: right;
+    }
+
+    .exercise-header-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 100px 80px;
+      gap: 12px;
+      padding: 6px 0 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .exercise-header-row span {
+      font-size: 11px;
+      font-weight: 510;
+      color: var(--text-quaternary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .exercise-header-row .hdr-exercise { text-align: left; }
+    .exercise-header-row .hdr-sets { text-align: center; }
+    .exercise-header-row .hdr-reps { text-align: center; }
+    .exercise-header-row .hdr-rest { text-align: right; }
+
+    /* Warmup note */
+    .warmup-note {
+      padding: 12px 24px 4px;
+      font-size: 13px;
+      color: var(--text-quaternary);
+      font-weight: 400;
+      letter-spacing: -0.13px;
+    }
+
+    .warmup-note span {
+      color: var(--text-tertiary);
+    }
+
+    /* Tips section */
+    .tips-section {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .tips-title {
+      font-size: 15px;
+      font-weight: 590;
+      color: var(--text-primary);
+      letter-spacing: -0.165px;
+      margin-bottom: 14px;
+    }
+
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tip-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+    }
+
+    .tip-bullet {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-quaternary);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--accent-hover);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .header-inner {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .stats-bar {
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .container {
+        padding: 24px 16px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+        letter-spacing: -0.528px;
+      }
+
+      .exercise-row,
+      .exercise-header-row {
+        grid-template-columns: 1fr 70px 70px 60px;
+        gap: 6px;
+      }
+
+      .exercise-name {
+        font-size: 14px;
+      }
+
+      .exercise-sets,
+      .exercise-reps {
+        font-size: 13px;
+      }
+
+      .exercise-rest {
+        font-size: 12px;
+      }
+
+      .day-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .toggle-group {
+        width: 100%;
+      }
+
+      .toggle-btn {
+        flex: 1;
+        text-align: center;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .day-card {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .day-card:nth-child(2) { animation-delay: 0.08s; }
+    .day-card:nth-child(3) { animation-delay: 0.16s; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">W</div>
+        Warayo Gym
+      </div>
+      <div class="stats-bar">
+        <div class="stat">
+          41 <span class="stat-value">yo</span>
+        </div>
+        <div class="stat-dot"></div>
+        <div class="stat">
+          76 <span class="stat-value">kg</span>
+        </div>
+        <div class="stat-dot"></div>
+        <div class="stat">
+          175 <span class="stat-value">cm</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="app">
+    <div class="hero">
+      <h1>3-Day Strength Split</h1>
+      <p>Push • Pull • Legs — a complete weekly cycle designed for steady progression. Toggle between Definition and Volume to match your current goal.</p>
+    </div>
+
+    <div class="goal-section">
+      <div class="goal-label">Training Goal</div>
+      <div class="toggle-group">
+        <button class="toggle-btn active" data-goal="definition" onclick="setGoal('definition')">✧ Definition</button>
+        <button class="toggle-btn" data-goal="volume" onclick="setGoal('volume')">▲ Volume</button>
+      </div>
+    </div>
+
+    <div class="day-grid" id="day-grid">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="tips-section" id="tips-section">
+      <!-- Populated by JS -->
+    </div>
+  </main>
+
+  <footer>
+    <p>Built for Roberto · 41 · 76kg · 175cm · <a href="https://github.com/pepe-Roberto/workout" target="_blank">View on GitHub</a></p>
+  </footer>
+
+  <script>
+    const ROUTINES = {
+      definition: {
+        label: 'Definition',
+        badge: 'definition',
+        tips: [
+          'Focus on form — controlled reps with a 2-second negative. Quality over ego.',
+          'Rest 45–60 seconds between sets. Keep intensity high, rest short.',
+          'At 41, prioritise joint health: warm up thoroughly before every session.',
+          'Add 15–20 min LISS cardio after each session (walking, bike, incline tread).',
+          'Track your protein: aim for ~150g/day to preserve muscle during the cut.',
+        ],
+        days: [
+          {
+            title: 'Push Day',
+            muscle: 'Chest · Shoulders · Triceps',
+            exercises: [
+              { name: 'Dumbbell Bench Press',          sets: 4, reps: '12–15', rest: '60s' },
+              { name: 'Incline Dumbbell Press',         sets: 3, reps: '12–15', rest: '60s' },
+              { name: 'Dumbbell Shoulder Press',        sets: 3, reps: '12–15', rest: '60s' },
+              { name: 'Lateral Raises',                 sets: 4, reps: '15',    rest: '45s' },
+              { name: 'Cable Triceps Pushdown',         sets: 3, reps: '15',    rest: '45s' },
+              { name: 'Overhead Triceps Extension',     sets: 3, reps: '15',    rest: '45s' },
+            ]
+          },
+          {
+            title: 'Pull Day',
+            muscle: 'Back · Biceps · Rear Delts',
+            exercises: [
+              { name: 'Lat Pulldown',                   sets: 4, reps: '12–15', rest: '60s' },
+              { name: 'Seated Cable Row',               sets: 3, reps: '12–15', rest: '60s' },
+              { name: 'Dumbbell Row (each arm)',         sets: 3, reps: '12',    rest: '60s' },
+              { name: 'Face Pull',                      sets: 4, reps: '15',    rest: '45s' },
+              { name: 'Barbell Curl',                   sets: 3, reps: '12',    rest: '45s' },
+              { name: 'Hammer Curl',                    sets: 3, reps: '12',    rest: '45s' },
+            ]
+          },
+          {
+            title: 'Legs & Core',
+            muscle: 'Quads · Hamstrings · Glutes · Calves',
+            exercises: [
+              { name: 'Goblet Squat',                   sets: 4, reps: '15',    rest: '60s' },
+              { name: 'Leg Press',                      sets: 3, reps: '15',    rest: '60s' },
+              { name: 'Romanian Deadlift',              sets: 3, reps: '12–15', rest: '60s' },
+              { name: 'Lying Leg Curl',                 sets: 3, reps: '15',    rest: '45s' },
+              { name: 'Standing Calf Raise',            sets: 4, reps: '20',    rest: '45s' },
+              { name: 'Plank',                          sets: 3, reps: '45s',   rest: '30s' },
+            ]
+          },
+        ]
+      },
+      volume: {
+        label: 'Volume',
+        badge: 'volume',
+        tips: [
+          'Focus on progressive overload — add 2.5kg each week on compound lifts.',
+          'Rest 90–120 seconds between sets. Let your CNS recover for heavier loads.',
+          'At 41, warm up with empty bar / light weight for 2 sets before working sets.',
+          'Eat in a 300–500 calorie surplus. Prioritise carbs around your workout window.',
+          'Track each session: log the weight used and aim to beat it next week.',
+        ],
+        days: [
+          {
+            title: 'Push Day',
+            muscle: 'Chest · Shoulders · Triceps',
+            exercises: [
+              { name: 'Barbell Bench Press',            sets: 4, reps: '6–8',   rest: '120s' },
+              { name: 'Incline Barbell Press',          sets: 3, reps: '8–10',  rest: '90s' },
+              { name: 'Standing Barbell Shoulder Press', sets: 4, reps: '6–8',  rest: '120s' },
+              { name: 'Lateral Raises',                 sets: 3, reps: '12',    rest: '60s' },
+              { name: 'Parallel Bar Dips',              sets: 3, reps: '8–10',  rest: '90s' },
+              { name: 'Skull Crushers (EZ Bar)',        sets: 3, reps: '10',    rest: '60s' },
+            ]
+          },
+          {
+            title: 'Pull Day',
+            muscle: 'Back · Biceps · Rear Delts',
+            exercises: [
+              { name: 'Deadlift',                       sets: 4, reps: '5',     rest: '150s' },
+              { name: 'Pull-Ups',                       sets: 4, reps: '6–8',   rest: '90s' },
+              { name: 'Barbell Row',                    sets: 4, reps: '8–10',  rest: '90s' },
+              { name: 'Face Pull',                      sets: 3, reps: '12',    rest: '60s' },
+              { name: 'Barbell Curl',                   sets: 3, reps: '10',    rest: '60s' },
+              { name: 'Incline Dumbbell Curl',          sets: 3, reps: '10',    rest: '60s' },
+            ]
+          },
+          {
+            title: 'Legs & Core',
+            muscle: 'Quads · Hamstrings · Glutes · Calves',
+            exercises: [
+              { name: 'Barbell Squat',                  sets: 4, reps: '6–8',   rest: '120s' },
+              { name: 'Leg Press',                      sets: 3, reps: '10',    rest: '90s' },
+              { name: 'Romanian Deadlift',              sets: 3, reps: '8–10',  rest: '90s' },
+              { name: 'Walking Lunges',                 sets: 3, reps: '8/leg', rest: '60s' },
+              { name: 'Standing Calf Raise',            sets: 4, reps: '12',    rest: '60s' },
+              { name: 'Hanging Leg Raise',              sets: 3, reps: '10',    rest: '60s' },
+            ]
+          },
+        ]
+      }
+    };
+
+    let currentGoal = 'definition';
+
+    function setGoal(goal) {
+      currentGoal = goal;
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.goal === goal);
+      });
+      renderRoutine(goal);
+    }
+
+    function renderRoutine(goal) {
+      const data = ROUTINES[goal];
+      const grid = document.getElementById('day-grid');
+      const tips = document.getElementById('tips-section');
+
+      grid.innerHTML = data.days.map((day, i) => `
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-title-group">
+              <div class="day-number">${i + 1}</div>
+              <span class="day-title">${day.title}</span>
+              <span class="day-muscle">${day.muscle}</span>
+            </div>
+            <span class="day-type-badge ${data.badge}">${data.label}</span>
+          </div>
+          <div class="warmup-note">
+            <span>Warm-up:</span> 5 min light cardio + dynamic stretches before starting
+          </div>
+          <div class="exercise-list">
+            <div class="exercise-header-row">
+              <span class="hdr-exercise">Exercise</span>
+              <span class="hdr-sets">Sets</span>
+              <span class="hdr-reps">Reps</span>
+              <span class="hdr-rest">Rest</span>
+            </div>
+            ${day.exercises.map(ex => `
+              <div class="exercise-row">
+                <span class="exercise-name">${ex.name}</span>
+                <span class="exercise-sets">${ex.sets}</span>
+                <span class="exercise-reps">${ex.reps}</span>
+                <span class="exercise-rest">${ex.rest}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      tips.innerHTML = `
+        <div class="tips-title">${data.label} — Key Tips</div>
+        <div class="tips-list">
+          ${data.tips.map(t => `
+            <div class="tip-item">
+              <div class="tip-bullet"></div>
+              <span>${t}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Initial render
+    renderRoutine('definition');
+  </script>
+
+</body>
+</html>
