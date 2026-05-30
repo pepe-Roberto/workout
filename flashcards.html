@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warayo Flashcards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #08090a;
+      --bg-panel: #0f1011;
+      --bg-surface: #191a1b;
+      --bg-secondary: #28282c;
+      --text-primary: #f7f8f8;
+      --text-secondary: #d0d6e0;
+      --text-tertiary: #8a8f98;
+      --text-quaternary: #62666d;
+      --accent: #7170ff;
+      --accent-hover: #828fff;
+      --accent-bg: #5e6ad2;
+      --border: rgba(255,255,255,0.08);
+      --border-subtle: rgba(255,255,255,0.05);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-feature-settings: 'cv01', 'ss03';
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--text-quaternary); border-radius: 3px; }
+
+    /* Header */
+    header {
+      background: rgba(15,16,17,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      max-width: 800px; margin: 0 auto; padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-size: 16px; font-weight: 510; letter-spacing: -0.288px;
+      color: var(--text-primary); display: flex; align-items: center; gap: 8px;
+    }
+    .logo-icon {
+      width: 24px; height: 24px; background: var(--accent-bg);
+      border-radius: var(--radius-sm); display: flex; align-items: center;
+      justify-content: center; font-size: 13px; font-weight: 600; color: #fff;
+    }
+    .header-links { display: flex; gap: 16px; }
+    .header-links a {
+      font-size: 13px; font-weight: 510; color: var(--text-quaternary);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .header-links a:hover { color: var(--text-secondary); }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 24px; flex: 1; width: 100%; }
+
+    /* Hero */
+    .hero { margin-bottom: 32px; }
+    .hero h1 { font-size: 36px; font-weight: 510; line-height: 1.1; letter-spacing: -0.72px; margin-bottom: 8px; }
+    .hero p { font-size: 15px; color: var(--text-tertiary); }
+
+    /* Input Mode */
+    #input-section { margin-bottom: 24px; }
+
+    .flashcard-input-label {
+      font-size: 13px; font-weight: 510; color: var(--text-quaternary);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+
+    .flashcard-format-hint {
+      font-size: 12px; color: var(--text-quaternary); margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .flashcard-format-hint code {
+      background: rgba(255,255,255,0.05); padding: 1px 6px;
+      border-radius: 3px; font-size: 11px; color: var(--text-tertiary);
+    }
+
+    textarea {
+      width: 100%; height: 200px; resize: vertical;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: var(--text-secondary);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(113,112,255,0.15);
+    }
+    textarea::placeholder { color: var(--text-quaternary); }
+
+    .btn-row {
+      display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-feature-settings: 'cv01', 'ss03';
+      font-size: 14px; font-weight: 510;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.07);
+      color: var(--text-primary);
+    }
+    .btn-primary {
+      background: var(--accent-bg);
+      border-color: var(--accent-bg);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Study Mode */
+    #study-section { display: none; }
+
+    .study-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .study-progress {
+      font-size: 14px; font-weight: 400; color: var(--text-tertiary);
+    }
+    .study-progress strong { color: var(--text-primary); font-weight: 510; }
+
+    .study-controls { display: flex; gap: 8px; }
+    .study-controls button {
+      padding: 8px 16px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03); color: var(--text-tertiary);
+      border-radius: var(--radius-sm); font-size: 13px; font-weight: 510;
+      font-family: 'Inter', system-ui, sans-serif;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .study-controls button:hover {
+      background: rgba(255,255,255,0.07); color: var(--text-primary);
+    }
+
+    /* Flashcard */
+    .flashcard-container {
+      perspective: 1200px;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      position: relative;
+      width: 100%;
+      min-height: 320px;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flashcard.flipped {
+      transform: rotateX(180deg);
+    }
+
+    .flashcard-face {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 320px;
+    }
+
+    .flashcard-back {
+      transform: rotateX(180deg);
+    }
+
+    .flashcard-label {
+      font-size: 11px; font-weight: 510; color: var(--text-quaternary);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .flashcard-question {
+      font-size: 22px; font-weight: 500; color: var(--text-primary);
+      line-height: 1.4; max-width: 100%;
+    }
+
+    .flashcard-answer {
+      font-size: 20px; font-weight: 400; color: var(--accent);
+      line-height: 1.5; max-width: 100%;
+    }
+
+    .flashcard-hint {
+      font-size: 13px; color: var(--text-quaternary); margin-top: 32px;
+    }
+
+    /* Navigation */
+    .nav-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; margin-bottom: 32px;
+    }
+
+    .nav-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-tertiary);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+    }
+    .nav-btn:disabled {
+      opacity: 0.3; cursor: not-allowed;
+    }
+
+    .nav-dots {
+      font-size: 13px; font-weight: 400; color: var(--text-quaternary);
+      min-width: 80px; text-align: center;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 60px 24px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .empty-state-icon { font-size: 40px; margin-bottom: 16px; }
+    .empty-state p { color: var(--text-tertiary); font-size: 14px; line-height: 1.6; }
+
+    /* Back to input button */
+    .back-link {
+      text-align: center; margin-top: 16px;
+    }
+    .back-link button {
+      background: none; border: none;
+      color: var(--text-quaternary); font-size: 13px;
+      font-family: 'Inter', system-ui, sans-serif;
+      cursor: pointer; transition: color 0.2s;
+    }
+    .back-link button:hover { color: var(--text-secondary); }
+
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px; text-align: center;
+    }
+    footer p { font-size: 13px; color: var(--text-quaternary); }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { color: var(--accent-hover); }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .flashcard-container { animation: fadeIn 0.3s ease; }
+
+    @media (max-width: 600px) {
+      .container { padding: 24px 16px; }
+      .hero h1 { font-size: 26px; letter-spacing: -0.5px; }
+      .flashcard-face { padding: 32px 20px; min-height: 260px; }
+      .flashcard-question { font-size: 18px; }
+      .flashcard-answer { font-size: 17px; }
+      .header-inner { padding: 12px 16px; }
+      textarea { height: 160px; font-size: 13px; }
+    }
+
+    /* Card counter badge */
+    .card-count {
+      font-size: 12px; font-weight: 510; color: var(--success);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">F</div>
+        Warayo Flashcards
+      </div>
+      <div class="header-links">
+        <a href="https://pepe-roberto.github.io/workout/" target="_blank">🏋️ Workout</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="app">
+    <div class="hero">
+      <h1>Flashcard Study</h1>
+      <p>Paste your flashcards below — flip, review, repeat.</p>
+    </div>
+
+    <!-- Input Section -->
+    <div id="input-section">
+      <div class="flashcard-input-label">Paste Flashcards</div>
+      <div class="flashcard-format-hint">
+        One card per line, separate Q &amp; A with <code>|</code> (pipe).<br>
+        Example: <code>What is HTML? | HyperText Markup Language</code><br>
+        Or use <code>---</code> on its own line between question and answer for multi-line cards.
+      </div>
+      <textarea id="flashcard-input" placeholder="Paste your flashcards here...
+
+Format: Question | Answer
+
+Example:
+What is the capital of France? | Paris
+SQL stands for? | Structured Query Language"></textarea>
+      <div class="card-count" id="card-count"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="loadCards()">📚 Study</button>
+        <button class="btn" onclick="shuffleCards()">🔀 Shuffle</button>
+        <button class="btn" onclick="clearCards()">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <!-- Study Section -->
+    <div id="study-section">
+      <div class="study-header">
+        <div class="study-progress">Card <strong id="current-num">1</strong> of <strong id="total-num">0</strong></div>
+        <div class="study-controls">
+          <button onclick="shuffleCards()">🔀 Shuffle</button>
+          <button onclick="backToInput()">✏️ Edit</button>
+        </div>
+      </div>
+
+      <div class="flashcard-container" onclick="flipCard()">
+        <div class="flashcard" id="flashcard">
+          <div class="flashcard-face flashcard-front">
+            <div class="flashcard-label">Question</div>
+            <div class="flashcard-question" id="card-question">Click to reveal</div>
+            <div class="flashcard-hint">Tap to flip</div>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <div class="flashcard-label">Answer</div>
+            <div class="flashcard-answer" id="card-answer">—</div>
+            <div class="flashcard-hint">Tap for next</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="nav-btn" id="prev-btn" onclick="prevCard()">←</button>
+        <span class="nav-dots" id="nav-dots">• • •</span>
+        <button class="nav-btn" id="next-btn" onclick="nextCard()">→</button>
+      </div>
+
+      <div class="back-link">
+        <button onclick="backToInput()">← Back to paste new cards</button>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div id="empty-state" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-state-icon">🃏</div>
+        <p>No flashcards yet. Paste some content above and hit <strong>Study</strong>.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Warayo Flashcards · <a href="https://github.com/pepe-Roberto/workout" target="_blank">View on GitHub</a></p>
+  </footer>
+
+  <script>
+    let cards = [];
+    let currentIndex = 0;
+    let isFlipped = false;
+
+    // ── Parsing ──
+    function parseFlashcards(text) {
+      text = text.trim();
+      if (!text) return [];
+
+      // Try pipe format first: Question | Answer
+      const pipeLines = text.split('\n').filter(l => l.trim());
+      const pipeCards = pipeLines.map(line => {
+        const parts = line.split('|').map(s => s.trim());
+        if (parts.length >= 2) {
+          return { q: parts[0], a: parts.slice(1).join(' | ') };
+        }
+        return null;
+      }).filter(Boolean);
+
+      if (pipeCards.length > 0) return pipeCards;
+
+      // Try --- separator format (multi-line cards)
+      const blocks = text.split(/\n---+\n/).map(b => b.trim()).filter(Boolean);
+      if (blocks.length >= 2 && blocks.length % 2 === 0) {
+        const paired = [];
+        for (let i = 0; i < blocks.length; i += 2) {
+          paired.push({ q: blocks[i], a: blocks[i + 1] || '' });
+        }
+        return paired;
+      }
+
+      // Fallback: odd lines = Q, even lines = A
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length >= 2) {
+        const paired = [];
+        for (let i = 0; i < lines.length; i += 2) {
+          if (i + 1 < lines.length) {
+            paired.push({ q: lines[i], a: lines[i + 1] });
+          } else {
+            paired.push({ q: lines[i], a: '' });
+          }
+        }
+        return paired;
+      }
+
+      return [{ q: lines[0] || text, a: '' }];
+    }
+
+    // ── Load ──
+    function loadCards() {
+      const input = document.getElementById('flashcard-input');
+      const raw = input.value;
+      if (!raw.trim()) return;
+
+      cards = parseFlashcards(raw);
+      if (cards.length === 0) return;
+
+      // Save to localStorage
+      localStorage.setItem('fc_cards', JSON.stringify(cards));
+      localStorage.setItem('fc_index', '0');
+
+      currentIndex = 0;
+      showStudyMode();
+    }
+
+    function showStudyMode() {
+      document.getElementById('input-section').style.display = 'none';
+      document.getElementById('study-section').style.display = 'block';
+      document.getElementById('empty-state').style.display = 'none';
+      showCard(currentIndex);
+    }
+
+    function backToInput() {
+      document.getElementById('input-section').style.display = 'block';
+      document.getElementById('study-section').style.display = 'none';
+      document.getElementById('empty-state').style.display = 'none';
+      isFlipped = false;
+      document.getElementById('flashcard').classList.remove('flipped');
+    }
+
+    // ── Navigation ──
+    function showCard(index) {
+      if (cards.length === 0) return;
+      currentIndex = Math.max(0, Math.min(index, cards.length - 1));
+      isFlipped = false;
+
+      const card = cards[currentIndex];
+      document.getElementById('flashcard').classList.remove('flipped');
+      document.getElementById('card-question').textContent = card.q;
+      document.getElementById('card-answer').textContent = card.a;
+      document.getElementById('current-num').textContent = currentIndex + 1;
+      document.getElementById('total-num').textContent = cards.length;
+
+      document.getElementById('prev-btn').disabled = currentIndex === 0;
+      document.getElementById('next-btn').disabled = currentIndex === cards.length - 1;
+
+      // Dots indicator
+      updateDots();
+    }
+
+    function updateDots() {
+      const dots = document.getElementById('nav-dots');
+      const total = cards.length;
+      if (total <= 1) { dots.textContent = ''; return; }
+      let html = '';
+      for (let i = 0; i < Math.min(total, 12); i++) {
+        const dist = Math.abs(i - currentIndex);
+        if (dist <= 5 || total <= 12) {
+          html += i === currentIndex ? '● ' : '○ ';
+        }
+      }
+      dots.textContent = html.trim();
+    }
+
+    function flipCard() {
+      if (isFlipped) {
+        // If already flipped and user taps, go to next card
+        nextCard();
+      } else {
+        isFlipped = true;
+        document.getElementById('flashcard').classList.add('flipped');
+      }
+    }
+
+    function nextCard() {
+      if (currentIndex < cards.length - 1) {
+        showCard(currentIndex + 1);
+      }
+    }
+
+    function prevCard() {
+      if (currentIndex > 0) {
+        showCard(currentIndex - 1);
+      }
+    }
+
+    function shuffleCards() {
+      // Fisher-Yates
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+      }
+      localStorage.setItem('fc_cards', JSON.stringify(cards));
+      currentIndex = 0;
+      localStorage.setItem('fc_index', '0');
+      if (document.getElementById('study-section').style.display !== 'none') {
+        showCard(0);
+      }
+    }
+
+    function clearCards() {
+      document.getElementById('flashcard-input').value = '';
+      document.getElementById('card-count').textContent = '';
+      cards = [];
+      localStorage.removeItem('fc_cards');
+      localStorage.removeItem('fc_index');
+      backToInput();
+    }
+
+    // ── Real-time card count ──
+    document.getElementById('flashcard-input').addEventListener('input', function() {
+      const parsed = parseFlashcards(this.value);
+      const count = document.getElementById('card-count');
+      if (parsed.length > 0) {
+        count.textContent = `${parsed.length} card${parsed.length !== 1 ? 's' : ''} detected`;
+      } else {
+        count.textContent = '';
+      }
+    });
+
+    // ── Keyboard shortcuts ──
+    document.addEventListener('keydown', function(e) {
+      if (document.getElementById('study-section').style.display === 'none') return;
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        if (isFlipped) nextCard();
+        else flipCard();
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevCard();
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        flipCard();
+      }
+    });
+
+    // ── Restore from localStorage ──
+    (function init() {
+      const saved = localStorage.getItem('fc_cards');
+      if (saved) {
+        try {
+          cards = JSON.parse(saved);
+          if (cards.length > 0) {
+            const idx = parseInt(localStorage.getItem('fc_index') || '0', 10);
+            currentIndex = isNaN(idx) ? 0 : Math.min(idx, cards.length - 1);
+            showStudyMode();
+            showCard(currentIndex);
+          }
+        } catch(e) {}
+      }
+    })();
+  </script>
+</body>
+</html>
