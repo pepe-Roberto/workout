@@ -437,7 +437,7 @@ Question | Answer"></textarea>
       if (!text) return [];
 
       // Try Q:/A: deck format first
-      if (/^DECK\s+\d/im.test(text) || /^Q:/im.test(text)) {
+      if (/^DECK\s+\d/im.test(text) || /^\d+\s*:/im.test(text) || /^Q:/im.test(text)) {
         return parseDeckFormat(text);
       }
 
@@ -484,10 +484,16 @@ Question | Answer"></textarea>
         line = line.trim();
         if (!line) continue;
 
-        // Deck header: DECK 1 — Name or DECK 1 - Name
+        // Deck header: DECK 1 — Name or DECK 1 - Name or 3: or 4:
         const deckMatch = line.match(/^DECK\s+(\d+)\s*[—\-–]\s*(.+)/i);
+        const shortDeck = line.match(/^(\d+)\s*:\s*(.*)/);
         if (deckMatch) {
           currentDeck = { num: parseInt(deckMatch[1], 10), name: deckMatch[2].trim() };
+          continue;
+        }
+        if (shortDeck) {
+          const name = shortDeck[2].trim() || 'Deck ' + shortDeck[1];
+          currentDeck = { num: parseInt(shortDeck[1], 10), name: name };
           continue;
         }
 
