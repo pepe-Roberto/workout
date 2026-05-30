@@ -282,6 +282,11 @@
       color: var(--accent);
     }
 
+    .day-type-badge.general {
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+
     /* Exercises table */
     .exercise-list {
       padding: 16px 24px 20px;
@@ -525,14 +530,15 @@
 
   <main class="container" id="app">
     <div class="hero">
-      <h1>3-Day Strength Split</h1>
-      <p>Push • Pull • Legs — a complete weekly cycle designed for steady progression. Toggle between Definition and Volume to match your current goal.</p>
+      <h1>3-Day Split + General Day</h1>
+      <p>Push • Pull • Legs — plus a full-body backup for days you're not feeling the grind. Toggle between General, Definition, and Volume to match your vibe.</p>
     </div>
 
     <div class="goal-section">
       <div class="goal-label">Training Goal</div>
       <div class="toggle-group">
-        <button class="toggle-btn active" data-goal="definition" onclick="setGoal('definition')">✧ Definition</button>
+        <button class="toggle-btn active" data-goal="general" onclick="setGoal('general')">○ General Day</button>
+        <button class="toggle-btn" data-goal="definition" onclick="setGoal('definition')">✧ Definition</button>
         <button class="toggle-btn" data-goal="volume" onclick="setGoal('volume')">▲ Volume</button>
       </div>
     </div>
@@ -552,6 +558,33 @@
 
   <script>
     const ROUTINES = {
+      general: {
+        label: 'General Day',
+        badge: 'general',
+        tips: [
+          'Not feeling the split? This is your go-to — just show up and move.',
+          'Keep rest 60–90s. Don\'t overthink it, just get through the 8 exercises.',
+          'Pick a weight that feels "medium-hard" — not max effort, not too easy.',
+          'Warm up 5 min and you\'re done in ~40 minutes. Better than skipping.',
+          'Even an average workout beats the best workout you didn\'t do.',
+        ],
+        days: [
+          {
+            title: 'Full Body',
+            muscle: 'Everything — low pressure',
+            exercises: [
+              { name: 'Goblet Squat',                     sets: 3, reps: '10–12', rest: '60s' },
+              { name: 'Dumbbell Bench Press',             sets: 3, reps: '10–12', rest: '60s' },
+              { name: 'Seated Cable Row',                 sets: 3, reps: '10–12', rest: '60s' },
+              { name: 'Dumbbell Shoulder Press',          sets: 3, reps: '10–12', rest: '60s' },
+              { name: 'Lat Pulldown',                     sets: 3, reps: '10–12', rest: '60s' },
+              { name: 'Leg Curl',                         sets: 3, reps: '12',    rest: '45s' },
+              { name: 'Dumbbell Curl',                    sets: 2, reps: '12',    rest: '45s' },
+              { name: 'Triceps Pushdown',                 sets: 2, reps: '12',    rest: '45s' },
+            ]
+          }
+        ]
+      },
       definition: {
         label: 'Definition',
         badge: 'definition',
@@ -652,7 +685,7 @@
       }
     };
 
-    let currentGoal = 'definition';
+    let currentGoal = 'general';
 
     function setGoal(goal) {
       currentGoal = goal;
