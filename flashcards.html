@@ -255,6 +255,26 @@
       min-width: 80px; text-align: center;
     }
 
+    /* Deck selector chips */
+    .deck-selector {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
+    }
+    .deck-chip {
+      padding: 5px 12px; border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent; color: var(--text-quaternary);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 510; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .deck-chip:hover {
+      background: rgba(255,255,255,0.05); color: var(--text-secondary);
+    }
+    .deck-chip.active {
+      background: rgba(113,112,255,0.15); border-color: rgba(113,112,255,0.4);
+      color: var(--accent);
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center; padding: 60px 24px;
@@ -328,17 +348,20 @@
     <div id="input-section">
       <div class="flashcard-input-label">Paste Flashcards</div>
       <div class="flashcard-format-hint">
-        One card per line, separate Q &amp; A with <code>|</code> (pipe).<br>
-        Example: <code>What is HTML? | HyperText Markup Language</code><br>
-        Or use <code>---</code> on its own line between question and answer for multi-line cards.
+        Supports <strong>deck format</strong> with <code>DECK N — Name</code> headers and <code>Q:</code>/<code>A:</code> lines.<br>
+        Also works with pipe format: <code>Question | Answer</code> (one per line).
       </div>
       <textarea id="flashcard-input" placeholder="Paste your flashcards here...
 
-Format: Question | Answer
+Deck format (recommended):
+DECK 1 — Universal ML Design Framework
+Q: What is the universal ML system design structure?
+A: Product goal → prediction task → data → model → serving → evaluation → monitoring.
+Q: What is a prediction target?
+A: The exact thing the model predicts.
 
-Example:
-What is the capital of France? | Paris
-SQL stands for? | Structured Query Language"></textarea>
+Or pipe format:
+Question | Answer"></textarea>
       <div class="card-count" id="card-count"></div>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="loadCards()">📚 Study</button>
@@ -350,12 +373,17 @@ SQL stands for? | Structured Query Language"></textarea>
     <!-- Study Section -->
     <div id="study-section">
       <div class="study-header">
-        <div class="study-progress">Card <strong id="current-num">1</strong> of <strong id="total-num">0</strong></div>
+        <div class="study-progress">
+          <span id="current-deck-name" style="display:none;font-size:12px;color:var(--accent);margin-bottom:4px;"></span>
+          Card <strong id="current-num">1</strong> of <strong id="total-num">0</strong>
+        </div>
         <div class="study-controls">
           <button onclick="shuffleCards()">🔀 Shuffle</button>
           <button onclick="backToInput()">✏️ Edit</button>
         </div>
       </div>
+
+      <div class="deck-selector" id="deck-selector"></div>
 
       <div class="flashcard-container" onclick="flipCard()">
         <div class="flashcard" id="flashcard">
@@ -398,32 +426,38 @@ SQL stands for? | Structured Query Language"></textarea>
 
   <script>
     let cards = [];
+    let decks = [];
     let currentIndex = 0;
     let isFlipped = false;
+    let activeDeck = null; // null = all decks
 
     // ── Parsing ──
     function parseFlashcards(text) {
       text = text.trim();
       if (!text) return [];
 
-      // Try pipe format first: Question | Answer
+      // Try Q:/A: deck format first
+      if (/^DECK\s+\d/im.test(text) || /^Q:/im.test(text)) {
+        return parseDeckFormat(text);
+      }
+
+      // Try pipe format: Question | Answer
       const pipeLines = text.split('\n').filter(l => l.trim());
       const pipeCards = pipeLines.map(line => {
         const parts = line.split('|').map(s => s.trim());
         if (parts.length >= 2) {
-          return { q: parts[0], a: parts.slice(1).join(' | ') };
+          return { q: parts[0], a: parts.slice(1).join(' | '), deck: null };
         }
         return null;
       }).filter(Boolean);
-
       if (pipeCards.length > 0) return pipeCards;
 
-      // Try --- separator format (multi-line cards)
+      // Try --- separator format
       const blocks = text.split(/\n---+\n/).map(b => b.trim()).filter(Boolean);
       if (blocks.length >= 2 && blocks.length % 2 === 0) {
         const paired = [];
         for (let i = 0; i < blocks.length; i += 2) {
-          paired.push({ q: blocks[i], a: blocks[i + 1] || '' });
+          paired.push({ q: blocks[i], a: blocks[i + 1] || '', deck: null });
         }
         return paired;
       }
@@ -433,16 +467,68 @@ SQL stands for? | Structured Query Language"></textarea>
       if (lines.length >= 2) {
         const paired = [];
         for (let i = 0; i < lines.length; i += 2) {
-          if (i + 1 < lines.length) {
-            paired.push({ q: lines[i], a: lines[i + 1] });
-          } else {
-            paired.push({ q: lines[i], a: '' });
-          }
+          paired.push({ q: lines[i], a: lines[i + 1] || '', deck: null });
         }
         return paired;
       }
 
-      return [{ q: lines[0] || text, a: '' }];
+      return [{ q: lines[0] || text, a: '', deck: null }];
+    }
+
+    function parseDeckFormat(text) {
+      const lines = text.split('\n');
+      const result = [];
+      let currentDeck = null;
+
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+
+        // Deck header: DECK 1 — Name or DECK 1 - Name
+        const deckMatch = line.match(/^DECK\s+(\d+)\s*[—\-–]\s*(.+)/i);
+        if (deckMatch) {
+          currentDeck = { num: parseInt(deckMatch[1], 10), name: deckMatch[2].trim() };
+          continue;
+        }
+
+        // Question: Q: ...
+        const qMatch = line.match(/^Q:\s*(.+)/i);
+        if (qMatch) {
+          result.push({
+            q: qMatch[1].trim(),
+            a: '',
+            deck: currentDeck ? `${currentDeck.num} — ${currentDeck.name}` : null
+          });
+          continue;
+        }
+
+        // Answer: A: ... — attach to the last Q
+        const aMatch = line.match(/^A:\s*(.+)/i);
+        if (aMatch && result.length > 0) {
+          const last = result[result.length - 1];
+          last.a = (last.a ? last.a + ' ' : '') + aMatch[1].trim();
+          continue;
+        }
+      }
+
+      return result;
+    }
+
+    function buildDeckList(cards) {
+      const seen = new Set();
+      const list = [];
+      for (const c of cards) {
+        if (c.deck && !seen.has(c.deck)) {
+          seen.add(c.deck);
+          list.push(c.deck);
+        }
+      }
+      return list;
+    }
+
+    function getFilteredCards() {
+      if (!activeDeck) return cards;
+      return cards.filter(c => c.deck === activeDeck);
     }
 
     // ── Load ──
@@ -453,6 +539,9 @@ SQL stands for? | Structured Query Language"></textarea>
 
       cards = parseFlashcards(raw);
       if (cards.length === 0) return;
+
+      decks = buildDeckList(cards);
+      activeDeck = null;
 
       // Save to localStorage
       localStorage.setItem('fc_cards', JSON.stringify(cards));
@@ -466,7 +555,43 @@ SQL stands for? | Structured Query Language"></textarea>
       document.getElementById('input-section').style.display = 'none';
       document.getElementById('study-section').style.display = 'block';
       document.getElementById('empty-state').style.display = 'none';
+
+      // Build deck selector
+      renderDeckSelector();
+
       showCard(currentIndex);
+    }
+
+    function renderDeckSelector() {
+      const container = document.getElementById('deck-selector');
+      if (!container) return;
+      if (decks.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      const items = decks.map(d =>
+        `<button class="deck-chip${activeDeck === d ? ' active' : ''}${activeDeck === null && d === decks[0] ? ' active' : ''}"
+          onclick="selectDeck('${d.replace(/'/g, "\\'")}')">${d}</button>`
+      ).join('');
+      // Add "All decks" chip at the start
+      const allActive = activeDeck === null;
+      container.innerHTML =
+        `<button class="deck-chip${allActive ? ' active' : ''}" onclick="selectDeck(null)">All Decks (${cards.length})</button>` +
+        items;
+    }
+
+    function selectDeck(deckName) {
+      activeDeck = deckName;
+      const filtered = getFilteredCards();
+      currentIndex = 0;
+      // Update chips
+      document.querySelectorAll('.deck-chip').forEach(ch => {
+        ch.classList.toggle('active', ch.textContent.trim().startsWith(deckName || 'All Decks'));
+      });
+      // Show first card of filtered set
+      if (filtered.length > 0) {
+        showCardAbsolute(0);
+      }
     }
 
     function backToInput() {
@@ -479,27 +604,46 @@ SQL stands for? | Structured Query Language"></textarea>
 
     // ── Navigation ──
     function showCard(index) {
-      if (cards.length === 0) return;
-      currentIndex = Math.max(0, Math.min(index, cards.length - 1));
+      const filtered = getFilteredCards();
+      if (filtered.length === 0) return;
+      const total = filtered.length;
+      currentIndex = Math.max(0, Math.min(index, total - 1));
+      showCardAbsolute(currentIndex);
+    }
+
+    function showCardAbsolute(index) {
+      const filtered = getFilteredCards();
+      if (filtered.length === 0) return;
+      currentIndex = Math.max(0, Math.min(index, filtered.length - 1));
       isFlipped = false;
 
-      const card = cards[currentIndex];
+      const card = filtered[currentIndex];
       document.getElementById('flashcard').classList.remove('flipped');
       document.getElementById('card-question').textContent = card.q;
       document.getElementById('card-answer').textContent = card.a;
+
+      // Show deck context in header
+      const deckInfo = document.getElementById('current-deck-name');
+      if (card.deck) {
+        deckInfo.textContent = card.deck;
+        deckInfo.style.display = 'block';
+      } else {
+        deckInfo.style.display = 'none';
+      }
+
       document.getElementById('current-num').textContent = currentIndex + 1;
-      document.getElementById('total-num').textContent = cards.length;
+      document.getElementById('total-num').textContent = filtered.length;
 
       document.getElementById('prev-btn').disabled = currentIndex === 0;
-      document.getElementById('next-btn').disabled = currentIndex === cards.length - 1;
+      document.getElementById('next-btn').disabled = currentIndex === filtered.length - 1;
 
-      // Dots indicator
       updateDots();
     }
 
     function updateDots() {
       const dots = document.getElementById('nav-dots');
-      const total = cards.length;
+      const filtered = getFilteredCards();
+      const total = filtered.length;
       if (total <= 1) { dots.textContent = ''; return; }
       let html = '';
       for (let i = 0; i < Math.min(total, 12); i++) {
@@ -513,7 +657,6 @@ SQL stands for? | Structured Query Language"></textarea>
 
     function flipCard() {
       if (isFlipped) {
-        // If already flipped and user taps, go to next card
         nextCard();
       } else {
         isFlipped = true;
@@ -522,26 +665,25 @@ SQL stands for? | Structured Query Language"></textarea>
     }
 
     function nextCard() {
-      if (currentIndex < cards.length - 1) {
-        showCard(currentIndex + 1);
+      const filtered = getFilteredCards();
+      if (currentIndex < filtered.length - 1) {
+        showCardAbsolute(currentIndex + 1);
       }
     }
 
     function prevCard() {
       if (currentIndex > 0) {
-        showCard(currentIndex - 1);
+        showCardAbsolute(currentIndex - 1);
       }
     }
 
     function shuffleCards() {
-      // Fisher-Yates
       for (let i = cards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [cards[i], cards[j]] = [cards[j], cards[i]];
       }
       localStorage.setItem('fc_cards', JSON.stringify(cards));
       currentIndex = 0;
-      localStorage.setItem('fc_index', '0');
       if (document.getElementById('study-section').style.display !== 'none') {
         showCard(0);
       }
@@ -551,6 +693,8 @@ SQL stands for? | Structured Query Language"></textarea>
       document.getElementById('flashcard-input').value = '';
       document.getElementById('card-count').textContent = '';
       cards = [];
+      decks = [];
+      activeDeck = null;
       localStorage.removeItem('fc_cards');
       localStorage.removeItem('fc_index');
       backToInput();
@@ -561,7 +705,10 @@ SQL stands for? | Structured Query Language"></textarea>
       const parsed = parseFlashcards(this.value);
       const count = document.getElementById('card-count');
       if (parsed.length > 0) {
-        count.textContent = `${parsed.length} card${parsed.length !== 1 ? 's' : ''} detected`;
+        const uniqueDecks = new Set(parsed.filter(c => c.deck).map(c => c.deck));
+        let msg = `${parsed.length} card${parsed.length !== 1 ? 's' : ''}`;
+        if (uniqueDecks.size > 0) msg += ` · ${uniqueDecks.size} deck${uniqueDecks.size !== 1 ? 's' : ''}`;
+        count.textContent = msg;
       } else {
         count.textContent = '';
       }
@@ -591,10 +738,12 @@ SQL stands for? | Structured Query Language"></textarea>
         try {
           cards = JSON.parse(saved);
           if (cards.length > 0) {
+            decks = buildDeckList(cards);
+            activeDeck = null;
             const idx = parseInt(localStorage.getItem('fc_index') || '0', 10);
             currentIndex = isNaN(idx) ? 0 : Math.min(idx, cards.length - 1);
             showStudyMode();
-            showCard(currentIndex);
+            showCardAbsolute(currentIndex);
           }
         } catch(e) {}
       }
